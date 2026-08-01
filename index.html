@@ -1,4 +1,3 @@
-HTML
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -43,11 +42,28 @@ HTML
             padding-bottom: 15px; 
             text-transform: capitalize;
         }
+
+        /* --- NOWA CZĘŚĆ DLA UKŁADU IKONY --- */
+        .pogoda-kontener {
+            display: flex;
+            justify-content: center; /* Wyśrodkowuje całość */
+            align-items: center;    /* Wyrównuje temperaturę i ikonkę w pionie */
+            margin: 15px 0;
+        }
+
         .pogoda-main { 
             font-size: 52px; 
             font-weight: 700; 
-            margin: 15px 0; 
+            margin: 0; /* Usuwamy marginesy pionowe, przejmuje je kontener */
+            padding-right: 15px; /* --- To przesunie pogodę lekko w lewo --- */
         }
+
+        .pogoda-ikona {
+            font-size: 52px; /* Taka sama wielkość jak temperatura */
+            font-weight: 700;
+        }
+        /* --- KONIEC NOWEJ CZĘŚCI --- */
+
         .szczegoly { 
             font-size: 16px; 
             line-height: 1.6; 
@@ -70,9 +86,14 @@ HTML
 
     <div class="lokalizacja">Górna Owczarnia</div>
 
-    <div class="pogoda-main">
-        <span id="temp">--</span>°C
+    <!-- --- NOWA STRUKTURA HTML --- -->
+    <div class="pogoda-kontener">
+        <div class="pogoda-main">
+            <span id="temp">--</span>°C
+        </div>
+        <div class="pogoda-ikona" id="ikona">--</div> <!-- Miejsce na ikonkę -->
     </div>
+    <!-- --- KONIEC NOWEJ STRUKTURY --- -->
 
     <div class="szczegoly">
         <p>Wiatr: <b><span id="wiatr">--</span> km/h</b></p>
