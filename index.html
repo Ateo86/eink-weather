@@ -1,136 +1,79 @@
 <!DOCTYPE html>
-<html>
+<html lang="pl">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>kindle-dashboard</title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
-    <link rel="stylesheet" href="./web/css/tachyons.css">
-    <link rel="stylesheet" href="./web/css/weather-icons.min.css">
-    <link rel="stylesheet" href="./web/style.css">
-    <script src="./web/vendor/d3js.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pogoda Górna Owczarnia</title>
+    <style>
+        body {
+            background-color: #ffffff;
+            color: #000000;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            border: 3px solid #000;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        #zegar { font-size: 64px; font-weight: bold; margin: 0; }
+        #data { font-size: 22px; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
+        .pogoda-main { font-size: 48px; font-weight: bold; margin: 15px 0; }
+        .szczegoly { font-size: 18px; line-height: 1.6; }
+    </style>
 </head>
 <body>
 
-<!-- time -->
-<div class="flex items-center mb2">
-    <div id="time" class="mr2"></div>
-    <div id="day"></div>
-</div>
+<div class="container">
+    <div id="zegar">00:00</div>
+    <div id="data">Ładowanie...</div>
 
-<!-- temperatures -->
-<div class="card">
-    <div class="card__content">
-        <div class="flex justify-between">
-            <div class="weather mb2">
-                <div class="labeled__text">
-                    <span class="name mr2"></span>
-                    <i class="labeled__suffix wi icon"></i>
-                </div>
-            </div>
-            <div class="temperature">
-                <div class="labeled__text">
-                    <span class="temp"></span>
-                    <span class="labeled__suffix">°</span>
-                    /
-                    <span class="f3">
-                        <span class="temp-feels f2"></span>°
-                    </span>
-                </div>
-            </div>
-        </div>
+    <div class="pogoda-main">
+        <span id="temp">--</span>°C
+    </div>
 
-        <div class="temp">
-            <div class="labeled-list">
-                <div class="labeled">
-                    <div class="labeled__label">Morning</div>
-                    <div class="labeled__text">
-                        <span class="temp-morn"></span>
-                        <span class="labeled__suffix">°</span>
-                    </div>
-                </div>
-                <div class="labeled">
-                    <div class="labeled__label">Day</div>
-                    <div class="labeled__text">
-                        <span class="temp-max"></span>
-                        <span class="labeled__suffix">°</span>
-                    </div>
-                </div>
-                <div class="labeled">
-                    <div class="labeled__label">Evening</div>
-                    <div class="labeled__text">
-                        <span class="temp-eve"></span>
-                        <span class="labeled__suffix">°</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="szczegoly">
+        <p><b>Górna Owczarnia</b></p>
+        <p>Wiatr: <span id="wiatr">--</span> km/h</p>
+        <p>Wilgotność: <span id="wilgotnosc">--</span>%</p>
     </div>
 </div>
 
-<!-- sun -->
-<div class="card overflow-hidden">
-    <div class="card__content">
-        <div class="sun__graph">
-            <div class="sun__label">
-                <div class="labeled__label">Sunrise</div>
-                <div class="labeled__text">
-                    <div class="sunrise"></div>
-                </div>
-            </div>
-            <div class="sun__wrap">
-                <div class="sun__rotate">
-                    <i class="sun__icon wi wi-solar-eclipse"></i>
-                    <div class="sun"></div>
-                    <i class="sun__icon sun__icon--moon wi wi-moon-waxing-crescent-5"></i>
-                </div>
-                <div class="sun__overlay"></div>
-            </div>
-            <div class="sun__label">
-                <div class="labeled__label">Sunset</div>
-                <div class="labeled__text">
-                    <div class="sunset"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<script>
+    function aktualizujCzas() {
+        var teraz = new Date();
+        var h = String(teraz.getHours()).padStart(2, '0');
+        var m = String(teraz.getMinutes()).padStart(2, '0');
+        document.getElementById('zegar').innerText = h + ":" + m;
 
-<div class="card">
-    <div class="card__content">
-        <svg id="hourly-weather" height=500 width=500></svg>
-    </div>
-</div>
+        var opcje = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+        document.getElementById('data').innerText = teraz.toLocaleDateString('pl-PL', opcje);
+    }
 
-<div class="colorscale"></div>
-<div class="colorscale-manual">
-    <div></div>
-    <div></div>
-    <div></div>
-    <div></div>
-    <div></div>
-    <div></div>
-    <div></div>
-    <div></div>
-    <div></div>
-    <div></div>
-    <div></div>
-    <div></div>
-    <div></div>
-    <div></div>
-    <div></div>
-    <div></div>
-</div>
+    async function pobierzPogode() {
+        try {
+            // Współrzędne Górnej Owczarni (Open-Meteo - darmowe API bez kluczy)
+            const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=51.1578&longitude=21.9806&current=temperature_2m,relative_humidity_2m,wind_speed_10m');
+            const data = await response.json();
 
-<script type="module">
-    import setup from "./web/index.js";
+            document.getElementById('temp').innerText = Math.round(data.current.temperature_2m);
+            document.getElementById('wiatr').innerText = Math.round(data.current.wind_speed_10m);
+            document.getElementById('wilgotnosc').innerText = data.current.relative_humidity_2m;
+        } catch (e) {
+            console.error("Błąd pobierania pogody", e);
+        }
+    }
 
-    setup({
-        lat: 51.1578,
-        lon: 21.9806,
-        openweather_key: "246525ce20dbcb10a9b042a91d3cb4eb"
-    });
+    aktualizujCzas();
+    pobierzPogode();
+
+    setInterval(aktualizujCzas, 10000); // Odświeżaj zegar co 10 sekund
+    setInterval(pobierzPogode, 600000);  // Odświeżaj pogodę co 10 minut
 </script>
+
 </body>
 </html>
