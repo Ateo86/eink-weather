@@ -1,118 +1,121 @@
-HTML
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pogoda Górna Owczarnia</title>
-    <style>
-        body {
-            background-color: #f4f6f8;
-            color: #1a1a1a;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
-        .container {
-            width: 100%;
-            max-width: 400px;
-            background: #ffffff;
-            border: 2px solid #333333;
-            padding: 24px;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            text-align: center;
-        }
-        #zegar { 
-            font-size: 60px; 
-            font-weight: 800; 
-            margin: 0; 
-            letter-spacing: -1px;
-        }
-        #data { 
-            font-size: 18px; 
-            color: #555555;
-            margin-top: 5px;
-            margin-bottom: 20px; 
-            border-bottom: 2px solid #eeeeee; 
-            padding-bottom: 15px; 
-            text-transform: capitalize;
-        }
-        .pogoda-main { 
-            font-size: 52px; 
-            font-weight: 700; 
-            margin: 15px 0; 
-        }
-        .szczegoly { 
-            font-size: 16px; 
-            line-height: 1.6; 
-        }
-        .szczegoly p {
-            margin: 8px 0;
-        }
-        .lokalizacja {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 12px;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pogoda Górna Owczarnia</title>
+    <style>
+        body {
+            background-color: #f4f6f8;
+            color: #1a1a1a;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            user-select: none;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: #ffffff;
+            border: 2px solid #333333;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+        #zegar { 
+            font-size: 60px; 
+            font-weight: 800; 
+            margin: 0; 
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+        #data { 
+            font-size: 18px; 
+            color: #555555;
+            margin-top: 8px;
+            margin-bottom: 20px; 
+            border-bottom: 2px solid #eeeeee; 
+            padding-bottom: 15px; 
+            text-transform: capitalize;
+        }
+        .lokalizacja {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .pogoda-main { 
+            font-size: 52px; 
+            font-weight: 700; 
+            margin: 10px 0 15px 0; 
+        }
+        .szczegoly { 
+            font-size: 16px; 
+            line-height: 1.6; 
+        }
+        .szczegoly p {
+            margin: 8px 0;
+        }
+    </style>
 </head>
 <body>
 
 <div class="container">
-    <div id="zegar">00:00</div>
-    <div id="data">Ładowanie...</div>
+    <div id="zegar">00:00</div>
+    <div id="data">Ładowanie...</div>
 
-    <div class="lokalizacja">Górna Owczarnia</div>
+    <div class="lokalizacja">Górna Owczarnia</div>
 
-    <div class="pogoda-main">
-        <span id="temp">--</span>°C
-    </div>
+    <div class="pogoda-main">
+        <span id="temp">--</span>°C
+    </div>
 
-    <div class="szczegoly">
-        <p>Wiatr: <b><span id="wiatr">--</span> km/h</b></p>
-        <p>Wilgotność: <b><span id="wilgotnosc">--</span>%</b></p>
-    </div>
+    <div class="szczegoly">
+        <p>Wiatr: <b><span id="wiatr">--</span> km/h</b></p>
+        <p>Wilgotność: <b><span id="wilgotnosc">--</span>%</b></p>
+    </div>
 </div>
 
 <script>
-    function aktualizujCzas() {
-        const teraz = new Date();
-        const h = String(teraz.getHours()).padStart(2, '0');
-        const m = String(teraz.getMinutes()).padStart(2, '0');
-        document.getElementById('zegar').innerText = `${h}:${m}`;
+    function aktualizujCzas() {
+        const teraz = new Date();
+        const h = String(teraz.getHours()).padStart(2, '0');
+        const m = String(teraz.getMinutes()).padStart(2, '0');
+        document.getElementById('zegar').innerText = `${h}:${m}`;
 
-        const opcje = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-        document.getElementById('data').innerText = teraz.toLocaleDateString('pl-PL', opcje);
-    }
+        const opcje = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+        document.getElementById('data').innerText = teraz.toLocaleDateString('pl-PL', opcje);
+    }
 
-    async function pobierzPogode() {
-        try {
-            // Współrzędne Górnej Owczarni (Open-Meteo)
-            const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=51.1578&longitude=21.9806&current=temperature_2m,relative_humidity_2m,wind_speed_10m');
-            
-            if (!response.ok) throw new Error("Błąd sieci");
-            
-            const data = await response.json();
+    async function pobierzPogode() {
+        try {
+            const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=51.1578&longitude=21.9806&current=temperature_2m,relative_humidity_2m,wind_speed_10m');
+            
+            if (!response.ok) throw new Error("Błąd sieci");
+            
+            const data = await response.json();
 
-            document.getElementById('temp').innerText = Math.round(data.current.temperature_2m);
-            document.getElementById('wiatr').innerText = Math.round(data.current.wind_speed_10m);
-            document.getElementById('wilgotnosc').innerText = data.current.relative_humidity_2m;
-        } catch (e) {
-            console.error("Błąd pobierania pogody:", e);
-        }
-    }
+            document.getElementById('temp').innerText = Math.round(data.current.temperature_2m);
+            document.getElementById('wiatr').innerText = Math.round(data.current.wind_speed_10m);
+            document.getElementById('wilgotnosc').innerText = data.current.relative_humidity_2m;
+        } catch (e) {
+            console.error("Błąd pobierania pogody:", e);
+            document.getElementById('temp').innerText = "ERR";
+        }
+    }
 
-    aktualizujCzas();
-    pobierzPogode();
+    // Inicjalizacja
+    aktualizujCzas();
+    pobierzPogode();
 
-    setInterval(aktualizujCzas, 10000); // Odświeżaj zegar co 10 sekund
-    setInterval(pobierzPogode, 600000);  // Odświeżaj pogodę co 10 minut
+    // Interwały odświeżania
+    setInterval(aktualizujCzas, 1000);  // Zegar co 1 sekundę
+    setInterval(pobierzPogode, 600000); // Pogoda co 10 minut (600 000 ms)
 </script>
 
 </body>
