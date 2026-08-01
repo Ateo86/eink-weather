@@ -1,42 +1,92 @@
-HTML
 <!DOCTYPE html>
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>Stacja Pogodowa</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pogoda Górna Owczarnia</title>
     <style>
         body {
             background-color: #ffffff;
             color: #000000;
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
             text-align: center;
-            padding-top: 20px;
         }
-        #zegar { font-size: 80px; font-weight: bold; margin: 10px 0; }
-        #data { font-size: 30px; margin-bottom: 30px; }
-        img { filter: grayscale(100%) contrast(150%); }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            border: 3px solid #000;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        #zegar { font-size: 64px; font-weight: bold; margin: 0; }
+        #data { font-size: 22px; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
+        .pogoda-main { font-size: 48px; font-weight: bold; margin: 15px 0 5px 0; }
+        .min-max { font-size: 20px; font-weight: bold; margin-bottom: 15px; }
+        .szczegoly { font-size: 18px; line-height: 1.6; }
     </style>
 </head>
 <body>
 
+<div class="container">
     <div id="zegar">00:00</div>
-    <div id="data">Ładowanie daty...</div>
+    <div id="data">Ładowanie...</div>
 
-    <!-- POGODA (podmień 'Warszawa' na swoje miasto) -->
-    <img src="https://wttr.in/Warszawa_0m_lang=pl.png" alt="Pogoda">
+    <div class="pogoda-main">
+        <span id="temp">--</span>°C
+    </div>
+    
+    <!-- Sekcja dla min/max temperatury -->
+    <div class="min-max">
+        ↓ <span id="temp-min">--</span>°C &nbsp;|&nbsp; ↑ <span id="temp-max">--</span>°C
+    </div>
 
-    <script>
-        function aktualizuj() {
-            var teraz = new Date();
-            var h = String(teraz.getHours()).padStart(2, '0');
-            var m = String(teraz.getMinutes()).padStart(2, '0');
-            document.getElementById('zegar').innerText = h + ":" + m;
+    <div class="szczegoly">
+        <p><b>Górna Owczarnia</b></p>
+        <p>Wiatr: <span id="wiatr">--</span> km/h</p>
+        <p>Wilgotność: <span id="wilgotnosc">--</span>%</p>
+    </div>
+</div>
+
+<script>
+    function aktualizujCzas() {
+        var teraz = new Date();
+        var h = String(teraz.getHours()).padStart(2, '0');
+        var m = String(teraz.getMinutes()).padStart(2, '0');
+        document.getElementById('zegar').innerText = h + ":" + m;
+
+        var opcje = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+        document.getElementById('data').innerText = teraz.toLocaleDateString('pl-PL', opcje);
+    }
+
+    async function pobierzPogode() {
+        try {
+            // Współrzędne Górnej Owczarni z dodanymi parametrami min i max temperatury (daily)
+            const url = 'https://api.open-meteo.com/v1/forecast?latitude=51.1578&longitude=21.9806&current=temperature_2m,relative_humidity_2m,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto';
             
-            var opcje = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('data').innerText = teraz.toLocaleDateString('pl-PL', opcje);
+            const response = await fetch(url);
+            const data = await response.json();
+
+            // Aktualizacja temperatury bieżącej, wiatru i wilgotności
+            document.getElementById('temp').innerText = Math.round(data.current.temperature_2m);
+            document.getElementById('wiatr').innerText = Math.round(data.current.wind_speed_10m);
+            document.getElementById('wilgotnosc').innerText = data.current.relative_humidity_2m;
+
+            // Aktualizacja min i max temperatury na dzisiaj (indeks 0 to dzisiejszy dzień)
+            document.getElementById('temp-min').innerText = Math.round(data.daily.temperature_2m_min[0]);
+            document.getElementById('temp-max').innerText = Math.round(data.daily.temperature_2m_max[0]);
+        } catch (e) {
+            console.error("Błąd pobierania pogody", e);
         }
-        aktualizuj();
-        setInterval(aktualizuj, 10000); // odświeżanie zegara
-    </script>
+    }
+
+    aktualizujCzas();
+    pobierzPogode();
+
+    setInterval(aktualizujCzas, 10000); // Odświeżaj zegar co 10 sekund
+    setInterval(pobierzPogode, 600000);  // Odświeżaj pogodę co 10 minut
+</script>
+
 </body>
 </html>
